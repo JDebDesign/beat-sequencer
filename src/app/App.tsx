@@ -11,7 +11,7 @@ import { useAuth } from './components/use-auth';
 import { AuthModal } from './components/auth-modal';
 import { API_BASE } from './components/supabase-client';
 import { publicAnonKey } from '/utils/supabase/info';
-import { Pencil, Camera, User } from 'lucide-react';
+import { Pencil, Camera, User, Menu, X, Save, FolderOpen, Plus } from 'lucide-react';
 
 const STEPS = 16;
 
@@ -42,6 +42,7 @@ function Navbar({
   onAvatarUpload: (file: File) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,14 +52,25 @@ function Navbar({
     }
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <div className="bg-[#18181b] relative shrink-0 w-full">
-      <div className="flex flex-row items-center justify-end overflow-clip size-full">
-        <div className="content-stretch flex items-center justify-end px-[40px] py-[24px] relative w-full">
-          <div className="content-stretch flex gap-[12px] items-center justify-end relative shrink-0">
+      <div className="flex flex-row items-center justify-between md:justify-end overflow-clip size-full">
+        <div className="content-stretch flex items-center justify-between md:justify-end px-4 sm:px-6 md:px-10 lg:px-[40px] py-3 sm:py-4 md:py-[24px] relative w-full">
+          {/* Hamburger - mobile only */}
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="md:hidden flex items-center justify-center size-10 rounded-lg shrink-0 cursor-pointer hover:bg-[#27272a] transition-colors touch-manipulation -ml-2"
+            aria-label="Open menu"
+          >
+            <Menu size={24} className="text-[#f1f5f9]" />
+          </button>
+
+          {/* Desktop auth - hidden on mobile */}
+          <div className="hidden md:flex content-stretch gap-[12px] items-center justify-end relative shrink-0">
             {user ? (
               <>
-                {/* Avatar */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -73,98 +85,105 @@ function Navbar({
                   title={avatarUrl ? 'Change profile photo' : 'Upload profile photo'}
                 >
                   {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt="Avatar"
-                      className="size-full rounded-full object-cover border-2 border-[#3f3f47] group-hover:border-[#8200db] transition-colors"
-                    />
+                    <img src={avatarUrl} alt="Avatar" className="size-full rounded-full object-cover border-2 border-[#3f3f47] group-hover:border-[#8200db] transition-colors" />
                   ) : (
-                    <div className="size-full rounded-full bg-[#27272a] border-2 border-[#3f3f47] group-hover:border-[#8200db] transition-colors flex items-center justify-center">
+                    <div className="size-full rounded-full bg-[#27272a] border-2 border-[#3f3f47] group-hover:border-[#8200db] flex items-center justify-center">
                       <User size={18} className="text-[#9f9fa9]" />
                     </div>
                   )}
-                  {/* Edit overlay */}
                   <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    {avatarUploading ? (
-                      <div className="size-[14px] border-2 border-white/80 border-t-transparent rounded-full animate-spin" />
-                    ) : avatarUrl ? (
-                      <Pencil size={14} className="text-white/90" />
-                    ) : (
-                      <Camera size={14} className="text-white/90" />
-                    )}
+                    {avatarUploading ? <div className="size-[14px] border-2 border-white/80 border-t-transparent rounded-full animate-spin" /> : avatarUrl ? <Pencil size={14} className="text-white/90" /> : <Camera size={14} className="text-white/90" />}
                   </div>
                 </button>
-
-                <p className="font-['Inter',sans-serif] font-medium text-[14px] text-[#9f9fa9]">
-                  {user.user_metadata?.name || user.email}
-                </p>
-                <button
-                  onClick={onSignOut}
-                  className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative shrink-0 cursor-pointer hover:opacity-80"
-                >
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f1f5f9] text-[16px]">Sign Out</p>
+                <p className="font-['Inter',sans-serif] font-medium text-[14px] text-[#9f9fa9] truncate max-w-[120px] lg:max-w-none">{user.user_metadata?.name || user.email}</p>
+                <button onClick={onSignOut} className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative shrink-0 cursor-pointer hover:opacity-80">
+                  <p className="font-['Geist',sans-serif] font-medium text-[16px] text-[#f1f5f9]">Sign Out</p>
                 </button>
               </>
             ) : (
               <>
-                <button
-                  onClick={() => onOpenAuth('signup')}
-                  className="bg-[#8200db] content-stretch flex gap-[4px] items-center justify-center p-[8px] relative rounded-[8px] shrink-0 cursor-pointer hover:bg-[#9a20ef] transition-colors"
-                >
-                  <div aria-hidden="true" className="absolute border border-[#ad46ff] border-solid inset-0 pointer-events-none rounded-[8px]" />
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f8fafc] text-[16px]">Sign Up</p>
+                <button onClick={() => onOpenAuth('signup')} className="bg-[#8200db] flex gap-[4px] items-center justify-center p-[8px] rounded-[8px] shrink-0 cursor-pointer hover:bg-[#9a20ef] transition-colors">
+                  <p className="font-['Geist',sans-serif] font-medium text-[16px] text-[#f8fafc]">Sign Up</p>
                 </button>
-                <button
-                  onClick={() => onOpenAuth('login')}
-                  className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative shrink-0 cursor-pointer hover:opacity-80"
-                >
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f1f5f9] text-[16px]">Log In</p>
+                <button onClick={() => onOpenAuth('login')} className="flex gap-[8px] items-center justify-center p-[8px] shrink-0 cursor-pointer hover:opacity-80">
+                  <p className="font-['Geist',sans-serif] font-medium text-[16px] text-[#f1f5f9]">Log In</p>
                 </button>
               </>
             )}
           </div>
-          <div className="-translate-x-1/2 -translate-y-1/2 absolute bg-[#8200db] content-stretch flex items-center justify-center left-1/2 px-[16px] py-[4px] top-[calc(50%+1px)]">
-            <p className="font-['Inter',sans-serif] font-black italic leading-[normal] relative shrink-0 text-[#f8fafc] text-[36px]">Super Beats</p>
+          <div className="-translate-x-1/2 -translate-y-1/2 absolute bg-[#8200db] flex items-center justify-center left-1/2 px-3 sm:px-[16px] py-1 sm:py-[4px] top-[calc(50%+1px)] pointer-events-none">
+            <p className="font-['Inter',sans-serif] font-black italic text-[#f8fafc] text-xl sm:text-2xl md:text-[36px]">Super Beats</p>
           </div>
         </div>
       </div>
       <div aria-hidden="true" className="absolute border-[#3f3f47] border-b border-solid inset-0 pointer-events-none" />
+
+      {/* Hamburger menu overlay - mobile only */}
+      {menuOpen && (
+        <div className="md:hidden fixed inset-0 z-50" aria-modal="true">
+          <div className="absolute inset-0 bg-black/60" onClick={closeMenu} />
+          <div className="absolute top-0 right-0 w-[280px] max-w-[85vw] h-full bg-[#18181b] border-l border-[#3f3f47] shadow-xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-[#3f3f47]">
+              <p className="font-['Inter',sans-serif] font-semibold text-[18px] text-[#f1f5f9]">Menu</p>
+              <button onClick={closeMenu} className="size-10 flex items-center justify-center rounded-lg hover:bg-[#27272a] transition-colors touch-manipulation">
+                <X size={24} className="text-[#f1f5f9]" />
+              </button>
+            </div>
+            <div className="flex flex-col p-4 gap-2">
+              {user ? (
+                <>
+                  <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleFileChange} className="hidden" />
+                  <button onClick={() => { fileInputRef.current?.click(); }} disabled={avatarUploading} className="flex items-center gap-3 p-3 rounded-lg hover:bg-[#27272a] transition-colors w-full text-left">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="" className="size-12 rounded-full object-cover border-2 border-[#3f3f47]" />
+                    ) : (
+                      <div className="size-12 rounded-full bg-[#27272a] border-2 border-[#3f3f47] flex items-center justify-center">
+                        <User size={24} className="text-[#9f9fa9]" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-['Inter',sans-serif] font-medium text-[#f1f5f9] truncate">{user.user_metadata?.name || user.email}</p>
+                      <p className="font-['Inter',sans-serif] text-[13px] text-[#9f9fa9]">Tap to change photo</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { onSignOut(); closeMenu(); }} className="flex items-center gap-3 p-3 rounded-lg hover:bg-[#27272a] transition-colors w-full text-left font-['Geist',sans-serif] font-medium text-[#f1f5f9]">
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => { onOpenAuth('signup'); closeMenu(); }} className="flex items-center justify-center p-3 rounded-lg bg-[#8200db] hover:bg-[#9a20ef] transition-colors w-full font-['Geist',sans-serif] font-medium text-[#f8fafc]">
+                    Sign Up
+                  </button>
+                  <button onClick={() => { onOpenAuth('login'); closeMenu(); }} className="flex items-center justify-center p-3 rounded-lg border border-[#3f3f47] hover:bg-[#27272a] transition-colors w-full font-['Geist',sans-serif] font-medium text-[#f1f5f9]">
+                    Log In
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// ─── Grid Cell ───
-function GridCell({
-  active,
-  isCurrentStep,
-  onClick,
-}: {
-  active: boolean;
-  isCurrentStep: boolean;
-  onClick: () => void;
-}) {
-  let bg = 'bg-[#18181b]';
-  if (active && isCurrentStep) {
-    bg = 'bg-[#ad46ff]';
-  } else if (active) {
-    bg = 'bg-[#8200db]';
-  } else if (isCurrentStep) {
-    bg = 'bg-[#52525b]';
-  } else {
-    bg = 'bg-[#27272a]';
-  }
-
+// ─── Grid Cell (mobile: flexible, fills grid cell) ───
+function GridCellMobile({ active, isCurrentStep, onClick }: { active: boolean; isCurrentStep: boolean; onClick: () => void }) {
+  let bg = active && isCurrentStep ? 'bg-[#ad46ff]' : active ? 'bg-[#8200db]' : isCurrentStep ? 'bg-[#52525b]' : 'bg-[#27272a]';
   return (
-    <button
-      onClick={onClick}
-      className={`${bg} relative rounded-[8px] shrink-0 size-[40px] cursor-pointer transition-colors duration-75 hover:brightness-125 active:scale-95`}
-    >
-      <div
-        aria-hidden="true"
-        className={`absolute border border-solid inset-0 pointer-events-none rounded-[8px] ${
-          active ? 'border-[#ad46ff]' : 'border-[#4a5565]'
-        }`}
-      />
+    <button onClick={onClick} className={`${bg} relative w-full h-full min-w-0 min-h-0 rounded-[4px] cursor-pointer transition-colors duration-75 hover:brightness-125 active:scale-95 touch-manipulation`}>
+      <div aria-hidden="true" className={`absolute border border-solid inset-0 pointer-events-none rounded-[inherit] ${active ? 'border-[#ad46ff]' : 'border-[#4a5565]'}`} />
+    </button>
+  );
+}
+
+// ─── Grid Cell (desktop: fixed size) ───
+function GridCellDesktop({ active, isCurrentStep, onClick }: { active: boolean; isCurrentStep: boolean; onClick: () => void }) {
+  let bg = active && isCurrentStep ? 'bg-[#ad46ff]' : active ? 'bg-[#8200db]' : isCurrentStep ? 'bg-[#52525b]' : 'bg-[#27272a]';
+  return (
+    <button onClick={onClick} className={`${bg} relative shrink-0 size-[40px] rounded-[8px] cursor-pointer transition-colors duration-75 hover:brightness-125 active:scale-95`}>
+      <div aria-hidden="true" className={`absolute border border-solid inset-0 pointer-events-none rounded-[8px] ${active ? 'border-[#ad46ff]' : 'border-[#4a5565]'}`} />
     </button>
   );
 }
@@ -182,35 +201,55 @@ function BeatGrid({
   onToggle: (instrument: InstrumentName, step: number) => void;
 }) {
   return (
-    <div className="content-stretch flex gap-[16px] items-start relative flex-1 min-w-0 overflow-x-auto">
-      <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0">
-        {/* Step numbers header */}
-        <div className="content-stretch flex gap-[16px] items-center py-[8px] relative shrink-0">
-          {Array.from({ length: STEPS }, (_, i) => (
-            <div
-              key={i}
-              className={`flex items-center justify-center shrink-0 size-[40px] font-['Inter',sans-serif] font-medium text-[12px] ${
-                isPlaying && currentStep === i ? 'text-[#ad46ff]' : 'text-[#3f3f47]'
-              }`}
-            >
-              {i + 1}
+    <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden md:overflow-visible">
+      {/* Mobile: vertical layout - steps as rows (1-16), instruments as columns - fills available height */}
+      <div
+        className="md:hidden grid gap-[2px] w-full flex-1 min-h-0"
+        style={{ gridTemplateColumns: 'minmax(0, 1.5rem) repeat(5, minmax(0, 1fr))', gridTemplateRows: 'repeat(16, minmax(0, 1fr))' }}
+      >
+        {/* Header row: empty | instrument labels */}
+        <div className="flex items-center justify-center font-['Inter',sans-serif] font-medium text-[8px] text-[#3f3f47] overflow-hidden" />
+        {INSTRUMENTS.map((inst) => (
+          <div key={`h-${inst}`} className="flex items-center justify-center font-['Inter',sans-serif] font-medium text-[9px] text-[#9f9fa9] truncate overflow-hidden" title={INSTRUMENT_LABELS[inst]}>
+            {INSTRUMENT_LABELS[inst]}
+          </div>
+        ))}
+        {/* Data rows: step number | Kick | Snare | OH | CH | Clap for each step */}
+        {Array.from({ length: STEPS }, (_, step) => [
+          <div
+            key={`s-${step}`}
+            className={`flex items-center justify-center font-['Inter',sans-serif] font-medium text-[8px] min-w-0 ${isPlaying && currentStep === step ? 'text-[#ad46ff]' : 'text-[#3f3f47]'}`}
+          >
+            {step + 1}
+          </div>,
+          ...INSTRUMENTS.map((inst) => (
+            <GridCellMobile
+              key={`${inst}-${step}`}
+              active={grid[inst][step]}
+              isCurrentStep={isPlaying && currentStep === step}
+              onClick={() => onToggle(inst, step)}
+            />
+          )),
+        ])}
+      </div>
+      {/* Desktop: original flex layout with scroll */}
+      <div className="hidden md:flex gap-4 lg:gap-[16px] items-start relative flex-1 min-w-0 overflow-x-auto">
+        <div className="flex flex-col gap-2 lg:gap-[8px] items-start shrink-0">
+          <div className="flex gap-4 lg:gap-[16px] items-center py-2 lg:py-[8px] shrink-0">
+            {Array.from({ length: STEPS }, (_, i) => (
+              <div key={i} className={`flex items-center justify-center shrink-0 size-[40px] font-['Inter',sans-serif] font-medium text-[12px] ${isPlaying && currentStep === i ? 'text-[#ad46ff]' : 'text-[#3f3f47]'}`}>
+                {i + 1}
+              </div>
+            ))}
+          </div>
+          {INSTRUMENTS.map((inst) => (
+            <div key={inst} className="flex gap-4 lg:gap-[16px] items-center py-2 lg:py-[8px] shrink-0">
+              {Array.from({ length: STEPS }, (_, step) => (
+                <GridCellDesktop key={step} active={grid[inst][step]} isCurrentStep={isPlaying && currentStep === step} onClick={() => onToggle(inst, step)} />
+              ))}
             </div>
           ))}
         </div>
-
-        {/* Instrument rows */}
-        {INSTRUMENTS.map((inst) => (
-          <div key={inst} className="content-stretch flex gap-[16px] items-center py-[8px] relative shrink-0">
-            {Array.from({ length: STEPS }, (_, step) => (
-              <GridCell
-                key={step}
-                active={grid[inst][step]}
-                isCurrentStep={isPlaying && currentStep === step}
-                onClick={() => onToggle(inst, step)}
-              />
-            ))}
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -501,7 +540,7 @@ export default function App() {
   }, [user]);
 
   return (
-    <div className="bg-[#09090b] min-h-screen flex flex-col">
+    <div className="bg-[#09090b] min-h-screen min-h-[100dvh] flex flex-col safe-area-padding">
       <Navbar
         user={user}
         avatarUrl={avatarUrl}
@@ -511,119 +550,74 @@ export default function App() {
         onAvatarUpload={handleAvatarUpload}
       />
 
-      <div className="flex-1 px-[40px] py-[24px]">
-        {/* Playback Tools */}
+      <div className="flex-1 flex flex-col min-h-0 px-4 sm:px-6 md:px-10 lg:px-[40px] py-4 sm:py-5 md:py-[24px]">
+        {/* Playback Tools - Mobile: compact icon row | Desktop: full layout */}
         <div className="bg-[#18181b] relative rounded-tl-[12px] rounded-tr-[12px] shrink-0 w-full">
           <div className="overflow-clip rounded-[inherit] size-full">
-            <div className="content-stretch flex items-center justify-between px-[40px] py-[16px] relative w-full flex-wrap gap-[16px]">
-              {/* Left: Tempo + Playback */}
-              <div className="content-stretch flex gap-[40px] items-center relative shrink-0">
+            {/* Mobile: single compact row - Playback | Tempo | Save | Open | New */}
+            <div className="md:hidden flex items-center justify-between gap-2 px-3 py-2.5">
+              <button
+                onClick={togglePlayback}
+                className={`${isPlaying ? 'bg-[#dc2626]' : 'bg-[#8200db]'} flex-1 flex gap-2 items-center justify-center py-2.5 px-3 rounded-lg shrink-0 cursor-pointer hover:brightness-110 transition-all touch-manipulation min-h-[44px]`}
+              >
+                {isPlaying ? (
+                  <svg className="size-5 shrink-0" fill="none" viewBox="0 0 16.5 16.5"><rect x="4" y="3" width="3" height="10.5" rx="1" fill="#F8FAFC" /><rect x="9.5" y="3" width="3" height="10.5" rx="1" fill="#F8FAFC" /></svg>
+                ) : (
+                  <svg className="size-5 shrink-0" fill="none" viewBox="0 0 16.5 16.5"><path d={svgPaths.p3031a300} stroke="#F8FAFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /><path d={svgPaths.p2aad7200} stroke="#F8FAFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg>
+                )}
+                <span className="font-['Geist',sans-serif] font-medium text-[#f8fafc] text-sm">{isPlaying ? 'Stop' : 'Play'}</span>
+              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="font-['Inter',sans-serif] font-medium text-[#9f9fa9] text-xs">BPM</span>
+                <input
+                  type="number"
+                  min={40}
+                  max={300}
+                  value={tempo}
+                  onChange={(e) => setTempo(Math.max(40, Math.min(300, Number(e.target.value) || 120)))}
+                  className="bg-[#27272a] text-[#f1f5f9] font-['Inter',sans-serif] font-medium text-sm w-12 text-center py-1.5 px-1 rounded border border-[#3f3f47] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+              <button onClick={handleSaveClick} className="size-10 flex items-center justify-center rounded-lg bg-[#27272a] hover:bg-[#3f3f47] transition-colors touch-manipulation shrink-0" title="Save Beat">
+                <Save size={20} className="text-[#99A1AF]" />
+              </button>
+              <button onClick={handleOpenClick} className="size-10 flex items-center justify-center rounded-lg bg-[#27272a] hover:bg-[#3f3f47] transition-colors touch-manipulation shrink-0" title="Open Beat">
+                <FolderOpen size={20} className="text-[#99A1AF]" />
+              </button>
+              <button onClick={newBeat} className="size-10 flex items-center justify-center rounded-lg bg-[#27272a] hover:bg-[#3f3f47] transition-colors touch-manipulation shrink-0" title="New Beat">
+                <Plus size={20} className="text-[#99A1AF]" />
+              </button>
+            </div>
+            {/* Desktop: original layout */}
+            <div className="hidden md:flex content-stretch items-center justify-between gap-4 px-6 lg:px-10 py-4 relative w-full">
+              <div className="content-stretch flex gap-6 lg:gap-[40px] items-center relative shrink-0">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                  <p className="font-['Inter',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f1f5f9] text-[16px]">
-                    Tempo
-                  </p>
+                  <p className="font-['Inter',sans-serif] font-medium text-[#f1f5f9] text-[16px]">Tempo</p>
                   <div className="bg-[#27272a] relative rounded-[2px] shrink-0">
                     <div aria-hidden="true" className="absolute border border-[#3f3f47] border-solid inset-0 pointer-events-none rounded-[2px]" />
-                    <input
-                      type="number"
-                      min={40}
-                      max={300}
-                      value={tempo}
-                      onChange={(e) => setTempo(Math.max(40, Math.min(300, Number(e.target.value) || 120)))}
-                      className="bg-transparent text-[#f1f5f9] font-['Inter',sans-serif] font-medium text-[16px] w-[56px] text-center px-[8px] py-[4px] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
+                    <input type="number" min={40} max={300} value={tempo} onChange={(e) => setTempo(Math.max(40, Math.min(300, Number(e.target.value) || 120)))} className="bg-transparent text-[#f1f5f9] font-['Inter',sans-serif] font-medium text-[16px] w-[56px] text-center px-[8px] py-[4px] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                   </div>
                 </div>
-
-                <button
-                  onClick={togglePlayback}
-                  className={`${
-                    isPlaying ? 'bg-[#dc2626]' : 'bg-[#8200db]'
-                  } content-stretch flex gap-[4px] items-center justify-center p-[8px] relative rounded-[8px] shrink-0 cursor-pointer hover:brightness-110 transition-all`}
-                >
+                <button onClick={togglePlayback} className={`${isPlaying ? 'bg-[#dc2626]' : 'bg-[#8200db]'} relative flex gap-[4px] items-center justify-center p-[8px] rounded-[8px] shrink-0 cursor-pointer hover:brightness-110 transition-all`}>
                   <div aria-hidden="true" className={`absolute border ${isPlaying ? 'border-[#f87171]' : 'border-[#ad46ff]'} border-solid inset-0 pointer-events-none rounded-[8px]`} />
                   <div className="overflow-clip relative shrink-0 size-[20px]">
-                    <div className="absolute inset-[12.5%]">
-                      <div className="absolute inset-[-5%]">
-                        {isPlaying ? (
-                          <svg className="block size-full" fill="none" viewBox="0 0 16.5 16.5">
-                            <rect x="4" y="3" width="3" height="10.5" rx="1" fill="#F8FAFC" />
-                            <rect x="9.5" y="3" width="3" height="10.5" rx="1" fill="#F8FAFC" />
-                          </svg>
-                        ) : (
-                          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16.5 16.5">
-                            <g>
-                              <path d={svgPaths.p3031a300} stroke="#F8FAFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-                              <path d={svgPaths.p2aad7200} stroke="#F8FAFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-                            </g>
-                          </svg>
-                        )}
-                      </div>
-                    </div>
+                    {isPlaying ? <svg className="block size-full" fill="none" viewBox="0 0 16.5 16.5"><rect x="4" y="3" width="3" height="10.5" rx="1" fill="#F8FAFC" /><rect x="9.5" y="3" width="3" height="10.5" rx="1" fill="#F8FAFC" /></svg> : <svg className="block size-full" fill="none" viewBox="0 0 16.5 16.5"><path d={svgPaths.p3031a300} stroke="#F8FAFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /><path d={svgPaths.p2aad7200} stroke="#F8FAFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg>}
                   </div>
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f8fafc] text-[16px]">
-                    {isPlaying ? 'Stop' : 'Playback'}
-                  </p>
+                  <p className="font-['Geist',sans-serif] font-medium text-[#f8fafc] text-[16px]">{isPlaying ? 'Stop' : 'Playback'}</p>
                 </button>
               </div>
-
-              {/* Right: Save / Open / New */}
               <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
-                <button
-                  onClick={handleSaveClick}
-                  className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <div className="bg-[#27272a] content-stretch flex items-center p-[4px] relative rounded-[4px] shrink-0">
-                    <div aria-hidden="true" className="absolute border border-[#3f3f47] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                    <div className="overflow-clip relative rounded-[4px] shrink-0 size-[20px]">
-                      <div className="absolute inset-[18.75%_9.38%]">
-                        <div className="absolute inset-[-6%_-4.62%]">
-                          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 17.75 14">
-                            <path d={svgPaths.pb0ea00} stroke="#99A1AF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f1f5f9] text-[16px]">Save Beat</p>
+                <button onClick={handleSaveClick} className="content-stretch flex gap-[8px] items-center justify-center p-[8px] shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+                  <div className="bg-[#27272a] flex items-center p-[4px] rounded-[4px] shrink-0"><div className="overflow-clip rounded-[4px] shrink-0 size-[20px]"><svg className="block size-full" fill="none" viewBox="0 0 17.75 14"><path d={svgPaths.pb0ea00} stroke="#99A1AF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg></div></div>
+                  <p className="font-['Geist',sans-serif] font-medium text-[#f1f5f9] text-[16px]">Save Beat</p>
                 </button>
-
-                <button
-                  onClick={handleOpenClick}
-                  className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <div className="bg-[#27272a] content-stretch flex items-center p-[4px] relative rounded-[4px] shrink-0">
-                    <div aria-hidden="true" className="absolute border border-[#3f3f47] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                    <div className="overflow-clip relative rounded-[4px] shrink-0 size-[20px]">
-                      <div className="absolute inset-[15.63%_7.68%]">
-                        <div className="absolute inset-[-5.45%_-4.43%]">
-                          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 18.4272 15.25">
-                            <path d={svgPaths.p14df6180} stroke="#99A1AF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f1f5f9] text-[16px]">Open Beat</p>
+                <button onClick={handleOpenClick} className="content-stretch flex gap-[8px] items-center justify-center p-[8px] shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+                  <div className="bg-[#27272a] flex items-center p-[4px] rounded-[4px] shrink-0"><div className="overflow-clip rounded-[4px] shrink-0 size-[20px]"><svg className="block size-full" fill="none" viewBox="0 0 18.4272 15.25"><path d={svgPaths.p14df6180} stroke="#99A1AF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg></div></div>
+                  <p className="font-['Geist',sans-serif] font-medium text-[#f1f5f9] text-[16px]">Open Beat</p>
                 </button>
-
-                <button
-                  onClick={newBeat}
-                  className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <div className="bg-[#27272a] content-stretch flex items-center p-[4px] relative rounded-[4px] shrink-0">
-                    <div aria-hidden="true" className="absolute border border-[#3f3f47] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                    <div className="overflow-clip relative rounded-[4px] shrink-0 size-[20px]">
-                      <div className="absolute inset-[9.38%_15.63%]">
-                        <div className="absolute inset-[-4.62%_-5.45%]">
-                          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15.25 17.75">
-                            <path d={svgPaths.p2543cf1} stroke="#99A1AF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="font-['Geist',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#f1f5f9] text-[16px]">New Beat</p>
+                <button onClick={newBeat} className="content-stretch flex gap-[8px] items-center justify-center p-[8px] shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+                  <div className="bg-[#27272a] flex items-center p-[4px] rounded-[4px] shrink-0"><div className="overflow-clip rounded-[4px] shrink-0 size-[20px]"><svg className="block size-full" fill="none" viewBox="0 0 15.25 17.75"><path d={svgPaths.p2543cf1} stroke="#99A1AF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg></div></div>
+                  <p className="font-['Geist',sans-serif] font-medium text-[#f1f5f9] text-[16px]">New Beat</p>
                 </button>
               </div>
             </div>
@@ -632,16 +626,16 @@ export default function App() {
         </div>
 
         {/* Sequencer Grid */}
-        <div className="bg-[#18181b]/50 border-2 border-t-0 border-[#3f3f47] rounded-bl-[12px] rounded-br-[12px] px-[40px] py-[24px]">
-          <div className="flex gap-[16px] items-start">
-            {/* Track labels */}
-            <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0">
-              <div className="content-stretch flex items-center justify-center p-[8px] relative shrink-0 h-[40px]">
-                <p className="font-['Inter',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#3f3f47] text-[20px]">Tracks</p>
+        <div className="flex-1 flex flex-col min-h-0 bg-[#18181b]/50 border-2 border-t-0 border-[#3f3f47] rounded-bl-[12px] rounded-br-[12px] px-4 sm:px-6 md:px-10 lg:px-[40px] py-4 sm:py-5 md:py-[24px]">
+          <div className="flex-1 flex min-h-0 gap-2 sm:gap-4 md:gap-[16px] items-stretch">
+            {/* Track labels - hidden on mobile (labels in grid) */}
+            <div className="hidden md:flex content-stretch flex-col gap-2 lg:gap-[8px] items-start relative shrink-0">
+              <div className="content-stretch flex items-center justify-center p-2 lg:p-[8px] relative shrink-0 h-[40px]">
+                <p className="font-['Inter',sans-serif] font-medium text-[#3f3f47] text-base lg:text-[20px]">Tracks</p>
               </div>
               {INSTRUMENTS.map((inst) => (
-                <div key={inst} className="flex items-center p-[8px] h-[56px] shrink-0">
-                  <p className="font-['Inter',sans-serif] font-medium leading-[normal] relative shrink-0 text-[#9f9fa9] text-[20px] whitespace-nowrap">
+                <div key={inst} className="flex items-center p-2 lg:p-[8px] h-[56px] shrink-0">
+                  <p className="font-['Inter',sans-serif] font-medium text-[#9f9fa9] text-sm lg:text-[20px] whitespace-nowrap">
                     {INSTRUMENT_LABELS[inst]}
                   </p>
                 </div>
@@ -666,8 +660,8 @@ export default function App() {
 
       {/* Save Dialog */}
       {showSaveDialog && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowSaveDialog(false)}>
-          <div className="bg-[#27272a] rounded-[12px] p-[24px] w-[360px] border border-[#3f3f47]" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 sm:p-0" onClick={() => setShowSaveDialog(false)}>
+          <div className="bg-[#27272a] rounded-[12px] p-4 sm:p-[24px] w-full max-w-[360px] border border-[#3f3f47]" onClick={(e) => e.stopPropagation()}>
             <h2 className="font-['Inter',sans-serif] font-medium text-[20px] text-[#f1f5f9] mb-[16px]">Save Beat</h2>
             <input
               type="text"
@@ -698,8 +692,8 @@ export default function App() {
 
       {/* Open Dialog */}
       {showOpenDialog && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowOpenDialog(false)}>
-          <div className="bg-[#27272a] rounded-[12px] p-[24px] w-[400px] max-h-[500px] border border-[#3f3f47] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 sm:p-0" onClick={() => setShowOpenDialog(false)}>
+          <div className="bg-[#27272a] rounded-[12px] p-4 sm:p-[24px] w-full max-w-[400px] max-h-[85vh] sm:max-h-[500px] border border-[#3f3f47] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <h2 className="font-['Inter',sans-serif] font-medium text-[20px] text-[#f1f5f9] mb-[16px]">Open Beat</h2>
             {beatsLoading ? (
               <p className="text-[#9f9fa9] font-['Inter',sans-serif] text-[14px] text-center py-[24px] animate-pulse">Loading beats...</p>

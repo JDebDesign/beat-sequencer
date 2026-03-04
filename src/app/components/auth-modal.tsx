@@ -38,11 +38,11 @@ export function AuthModal({ initialMode, onClose, onSignIn, onSignUp }: AuthModa
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 sm:p-0"
       onClick={onClose}
     >
       <div
-        className="bg-[#27272a] rounded-[12px] p-[32px] w-[400px] border border-[#3f3f47]"
+        className="bg-[#27272a] rounded-[12px] p-5 sm:p-[32px] w-full max-w-[400px] max-h-[90vh] overflow-y-auto border border-[#3f3f47]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Tabs */}
